@@ -1,2 +1,5 @@
 # auto_sql
-Automates conversion of tabular files to sqlite databases
+
+==Work in progress==
+
+A memory aware program that automates conversion of tabular files to sqlite databases
