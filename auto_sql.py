@@ -29,15 +29,17 @@ def get_chunk_count(file):
     if file_size < memory:
         return core_count
     else:
-        return (file_size/ memory) * core_count
+        return (file_size / memory) * core_count
 
-def write_sql(df):
-    con = sqlite3.connect('test.db')
-    df.to_sql("df", con, if_exists='append', index=False) # might save header for each df
+def write_sql(file, df, db_name):
+    table_name = os.path.basename(file).split(sep='.')[0]
+    con = sqlite3.connect('{}.db'.format(db_name))
+    df.to_sql(table_name , con, if_exists='append', index=False)
+
     con.close()
 
 
-def read_csv(file, chunk_count, line_count):
+def read_csv(file, chunk_count, line_count, db_name):
     core_count = multiprocessing.cpu_count()
     nrows = int(line_count / chunk_count)
     skiprows = 0
@@ -50,10 +52,13 @@ def read_csv(file, chunk_count, line_count):
             df = pd.read_csv(file, sep=",", skiprows=skiprows, nrows=nrows, header=None, names=names) #4329313 total lines nrow 697492
             skiprows += nrows
 
-        write_sql(df)
+        write_sql(file=file, df=df, db_name=db_name)
+
+def run(file, db_name):
+    chunk_count = get_chunk_count(file=file)
+    line_count = count_file_lines(file=file)
+    read_csv(file=file, chunk_count=chunk_count, line_count=line_count, db_name=db_name)
 
 
 if __name__ == "__main__":
-    chunk_count = get_chunk_count(file="surveys.csv")
-    line_count = count_file_lines(file="surveys.csv")
-    read_csv(file="surveys.csv", chunk_count=chunk_count, line_count=line_count)
+    run(file='surveys.csv', db_name='database')
