@@ -16,6 +16,7 @@ def get_file_size(file):
 def count_file_lines(file):
     print("Counting file rows")
     with open(file) as read_obj:
+        read_obj.readline() #Read a line to skip the header
         line_count = 0
         for line in read_obj:
             line_count += 1
@@ -38,26 +39,32 @@ def write_sql(file, df, db_name):
 
     con.close()
 
+def get_line_list(line_count, chunk_count):
+    line_list = []
+    for i in range(1, chunk_count):
+        line_list.append(line_count // chunk_count)
+    line_list.append(line_count // chunk_count + line_count % chunk_count)
+    return line_list
 
-def read_csv(file, chunk_count, line_count, db_name):
-    core_count = multiprocessing.cpu_count()
-    nrows = int(line_count / chunk_count)
+
+def read_csv(file, line_list, db_name):
     skiprows = 0
-    for core in range(core_count):
-        if core == 0:
-            df = pd.read_csv(file, sep=",", nrows=nrows)
-            skiprows += nrows
+    for counter, line_cout in enumerate(line_list):
+        if counter == 0:
+            df = pd.read_csv(file, sep=",", nrows=line_cout)
+            skiprows += line_cout
             names = df.columns.values
         else:
-            df = pd.read_csv(file, sep=",", skiprows=skiprows, nrows=nrows, header=None, names=names) #4329313 total lines nrow 697492
-            skiprows += nrows
+            df = pd.read_csv(file, sep=",", skiprows=skiprows, nrows=line_cout, header=None, names=names)
+            skiprows += line_cout
 
         write_sql(file=file, df=df, db_name=db_name)
 
 def run(file, db_name):
     chunk_count = get_chunk_count(file=file)
     line_count = count_file_lines(file=file)
-    read_csv(file=file, chunk_count=chunk_count, line_count=line_count, db_name=db_name)
+    line_list = get_line_list(line_count=line_count, chunk_count=chunk_count)
+    read_csv(file=file, line_list=line_list, db_name=db_name)
 
 
 if __name__ == "__main__":
