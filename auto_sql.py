@@ -1,14 +1,16 @@
 import pandas as pd
 import os
+from multiprocessing import  cpu_count, Process, Pool
+import math
+from mp_read_csv import mp_read_csv
 from psutil import virtual_memory
 import sqlite3
-from multiprocessing import  cpu_count, Process
-import math
+import time
 pd.set_option('display.max_columns', 1)
 
 
 class AutoSql():
-    def __init__(self, file, db_name, sep, buffer=.75):
+    def __init__(self, file, db_name, sep, buffer=.3):
         self.skiprows = 1
         self.file = file
         self.db_name = db_name
@@ -48,15 +50,20 @@ class AutoSql():
         memory = self.get_mem() #uncomment for production and delete below line
         #memory = 1011723776
         if file_size < memory:
-            return core_count
+            chunck_count = core_count
+            print('Chunk count: ' + str(chunck_count))
+            return chunck_count
         else:
-            return math.ceil((file_size / memory) * core_count)
+            chunck_count =  math.ceil((file_size / memory) * core_count)
+            print('Chunk count: ' + str(chunck_count))
+            return chunck_count
 
-    def write_sql(self, df):
-        print('Writing chunk to disk')
+    def write_sql(self, dfs):
+        print('Flushing to disk')
         table_name = os.path.basename(self.file).split(sep='.')[0]
         con = sqlite3.connect('{}.db'.format(self.db_name))
-        df.to_sql(table_name , con, if_exists='append', index=False)
+        for df in dfs:
+            df.to_sql(table_name , con, if_exists='append', index=False)
         con.close()
 
     def get_line_list(self, line_count, chunk_count):
@@ -68,11 +75,18 @@ class AutoSql():
 
 
     def read_csv(self, inner_line_list):
+        print('Reading chunks to memory')
+        outer_arg_list = []
         for counter, line_count in enumerate(inner_line_list):
-            print('Reading chunk to memory')
-            df = pd.read_csv(self.file, sep=self.sep, skiprows=self.skiprows, nrows=line_count, header=None, names=self.names)
+            inner_arg_list = []
+            inner_arg_list.extend((line_count, self.file, self.sep, self.skiprows, None, self.names))
+            outer_arg_list.append(inner_arg_list)
             self.skiprows += line_count
-            self.write_sql(df=df)
+        pool = Pool(len(inner_line_list))
+        dfs = pool.starmap(mp_read_csv, outer_arg_list)
+        pool.close()
+        pool.join()
+        self.write_sql(dfs=dfs)
 
 
     def mp_handler(self, line_list):
@@ -81,15 +95,17 @@ class AutoSql():
         for inner_line_list in mp_list:
             self.read_csv(inner_line_list=inner_line_list)
 
-
     def run(self):
+        start_time = time.time()
         chunk_count = self.get_chunk_count()
         line_count = self.count_file_lines()
         line_list = self.get_line_list(line_count=line_count, chunk_count=chunk_count)
         self.mp_handler(line_list=line_list)
+        time_delta = time.time() - start_time
+        print("Clocked at " + str(time_delta) + " seconds")
 
 
 if __name__ == "__main__":
-    my_object = AutoSql(file='surveys.csv', db_name='database', sep=',')
+    my_object = AutoSql(file='test.txt', db_name='database', sep='\t')
     my_object.run()
 
