@@ -2,18 +2,19 @@ import pandas as pd
 import os
 from psutil import virtual_memory
 import sqlite3
-import multiprocessing
+from multiprocessing import  cpu_count, Process
 import math
 pd.set_option('display.max_columns', 1)
 
 
 class AutoSql():
     def __init__(self, file, db_name, sep, buffer=.75):
-        self.skiprows = 0
+        self.skiprows = 1
         self.file = file
         self.db_name = db_name
         self.sep = sep
         self.buffer = buffer
+        self.names = pd.read_csv(self.file, sep=self.sep, nrows=1).columns
 
     def get_mem(self):
         print("Calculating available RAM...")
@@ -42,10 +43,10 @@ class AutoSql():
         return line_count
 
     def get_chunk_count(self):
-        core_count = multiprocessing.cpu_count()
+        core_count = cpu_count()
         file_size = self.get_file_size()
-        #memory = get_mem() uncomment for production and delete below line
-        memory = 1011723776
+        memory = self.get_mem() #uncomment for production and delete below line
+        #memory = 1011723776
         if file_size < memory:
             return core_count
         else:
@@ -67,23 +68,15 @@ class AutoSql():
 
 
     def read_csv(self, inner_line_list):
-        processess = []
         for counter, line_count in enumerate(inner_line_list):
-            if counter == 0:
-                print('Reading chunk to memory')
-                df = pd.read_csv(self.file, sep=self.sep, nrows=line_count)
-                self.skiprows += line_count
-                names = df.columns.values
-            else:
-                print('Reading chunk to memory')
-                df = pd.read_csv(self.file, sep=self.sep, skiprows=self.skiprows, nrows=line_count, header=None, names=names)
-                self.skiprows += line_count
-
+            print('Reading chunk to memory')
+            df = pd.read_csv(self.file, sep=self.sep, skiprows=self.skiprows, nrows=line_count, header=None, names=self.names)
+            self.skiprows += line_count
             self.write_sql(df=df)
 
 
     def mp_handler(self, line_list):
-        core_count = multiprocessing.cpu_count()
+        core_count = cpu_count()
         mp_list = [line_list[i:i + core_count] for i in range(0, len(line_list), core_count)]
         for inner_line_list in mp_list:
             self.read_csv(inner_line_list=inner_line_list)
@@ -97,7 +90,6 @@ class AutoSql():
 
 
 if __name__ == "__main__":
-    my_object = AutoSql(file='test.txt', db_name='database', sep='\t')
-    print(my_object.skiprows)
+    my_object = AutoSql(file='surveys.csv', db_name='database', sep=',')
     my_object.run()
-    print(my_object.skiprows)
+
