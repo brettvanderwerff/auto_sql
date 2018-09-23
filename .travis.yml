@@ -1,4 +1,8 @@
 language: python
+addons:
+  apt:
+    packages:
+    - python3-dev
 
 python:
   - "3.4"
