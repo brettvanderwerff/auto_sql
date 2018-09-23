@@ -1,15 +1,21 @@
 # auto_sql
 
+[![Build Status](https://travis-ci.org/brettvanderwerff/auto_sql.svg?branch=master)](https://travis-ci.org/brettvanderwerff/auto_sql)
 
 ==Work in progress== 
 
-auto_sql is early in development,  more features to come
+auto_sql is very early in development,  more features to come
 
 ## Description
 
 auto_sql is a memory aware csv to sqlite converter capable of converting multi-gigabyte tabular files to sqlite
 databases on low memory machines. auto_sql focuses on speed by enabling multi-processing on multi-core machines.
 
+## Installation
+
+```commandline
+$pip install auto_sql
+```
 
 ## Usage Case
 

@@ -183,6 +183,7 @@ class AutoSql():
         line_count = self.count_file_lines()
         line_list = self.get_line_list(line_count=line_count, chunk_count=chunk_count)
         self.mp_handler(line_list=line_list)
+        print('Complete')
 
 
 if __name__ == "__main__":
