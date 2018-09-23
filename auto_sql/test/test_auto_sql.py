@@ -1,6 +1,7 @@
 import unittest
 import pandas as pd
 import os
+from auto_sql import AutoSql
 import sqlite3
 
 class TestAutoSql(unittest.TestCase):
