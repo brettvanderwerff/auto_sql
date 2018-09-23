@@ -186,8 +186,7 @@ class AutoSql():
 
 
 if __name__ == "__main__":
-    my_object = AutoSql(file='surveys.csv',
-                        db_name='database',
+    my_object = AutoSql(file='file.csv',
                         sep=',',
                         out_dir=".")
     my_object.run()
