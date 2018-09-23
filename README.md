@@ -1,6 +1,5 @@
 # auto_sql
 
-[![Build Status](https://travis-ci.org/brettvanderwerff/auto_sql.svg?branch=master)](https://travis-ci.org/brettvanderwerff/auto_sql)
 
 ==Work in progress== 
 
@@ -15,7 +14,7 @@ databases on low memory machines. auto_sql focuses on speed by enabling multi-pr
 ## Usage Case
 
 ```python
-import auto_sql
+from auto_sql import AutoSql
 
 tab_obj = AutoSql(file='file.csv',
                         db_name='database',
