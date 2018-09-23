@@ -6,7 +6,7 @@ from psutil import virtual_memory
 import sqlite3
 
 class AutoSql():
-    def __init__(self, file, db_name, out_dir, sep, buffer=.3, encoding=None):
+    def __init__(self, file, out_dir, sep=',', buffer=.3, db_name=None, encoding=None):
         '''
         Instantiates the AutoSql object.
 
@@ -22,11 +22,15 @@ class AutoSql():
         self.skiprows = 1
         self.file = file
         self.out_dir = out_dir
-        self.db_name = db_name
         self.sep = sep
         self.buffer = buffer
         self.names = pd.read_csv(self.file, sep=self.sep, nrows=1).columns
         self.encoding = encoding
+
+        if db_name == None:
+            self.db_name = os.path.basename(self.file).split(sep='.')[0]
+        else:
+            self.db_name = db_name
 
     def get_mem(self):
         '''
