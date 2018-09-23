@@ -95,7 +95,7 @@ class AutoSql():
         :param dfs: A list of pandas DataFrames.
         '''
         print('Flushing to disk')
-        db_path = os.path.join(self.out_dir, os.path.basename(self.db_name))
+        db_path = os.path.join(self.out_dir, os.path.basename(self.db_name + '.db'))
         table_name = os.path.basename(self.file).split(sep='.')[0]
         con = sqlite3.connect(db_path)
         for df in dfs:
@@ -182,10 +182,9 @@ class AutoSql():
 
 
 if __name__ == "__main__":
-    my_object = AutoSql(file='PoliceKillingsUS.csv',
+    my_object = AutoSql(file='surveys.csv',
                         db_name='database',
                         sep=',',
-                        encoding='ISO-8859-1',
                         out_dir=".")
     my_object.run()
 

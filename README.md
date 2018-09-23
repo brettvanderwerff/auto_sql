@@ -2,4 +2,7 @@
 
 ==Work in progress==
 
-A memory aware program that automates conversion of tabular files to sqlite databases
+auto_sql is a memory aware csv to sqlite converter capable of converting multi-gigabyte tabular files to sqlite
+databases on low memory machines. auto_sql focuses on speed by enabling multi-processing on multi-core machines.
+
+
