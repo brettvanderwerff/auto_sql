@@ -30,7 +30,7 @@ class TestAutoSql(unittest.TestCase):
         '''
         test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 os.path.basename('test.db'))
-        
+
         self.test.run()
         con = sqlite3.connect(test_dir)
         df1 = pd.read_csv(self.test.file, sep=self.test.sep, encoding=self.test.encoding)
