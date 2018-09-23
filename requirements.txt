@@ -1,2 +1,2 @@
-pandas==0.22.0
+pandas==0.21.1
 psutil==5.4.7
