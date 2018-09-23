@@ -3,6 +3,7 @@ addons:
   apt:
     packages:
     - python3-dev
+    - libevent-dev
 
 python:
   - "3.4"
