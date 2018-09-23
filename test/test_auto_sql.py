@@ -4,17 +4,16 @@ import os
 from src.auto_sql import AutoSql
 import sqlite3
 
-
 class TestAutoSql(unittest.TestCase):
 
     def setUp(self):
         '''
-
         Instantiates the test object for the AutoSql class
         '''
-        self.test = AutoSql(file='surveys.csv',
+        self.test = AutoSql(file=os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                              os.path.basename('surveys.csv')),
                             db_name='test',
-                            out_dir=os.path.dirname(__file__),
+                            out_dir=os.path.dirname(os.path.abspath(__file__)),
                             sep=',')
 
 
@@ -29,7 +28,9 @@ class TestAutoSql(unittest.TestCase):
         Tests that a pandas Dataframe created from the surveys.csv file and a pandas Dataframe created from the sqlite
         database created by AutoSql are equivalent in every way as determined by the Dataframe method  "equals".
         '''
-        test_dir = os.path.join(os.path.dirname(__file__), os.path.basename('test.db'))
+        test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                os.path.basename('test.db'))
+        
         self.test.run()
         con = sqlite3.connect(test_dir)
         df1 = pd.read_csv(self.test.file, sep=self.test.sep, encoding=self.test.encoding)
