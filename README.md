@@ -32,6 +32,24 @@ if __name__ == "__main__":
 
 ```
 
+## Tuning
+
+The `buffer` parameter can be reduced from it's default `.3` value to avoid memory errors. Conversely the `buffer` parameter can be increased to gain speed at the increased risk of a memory error.
+
+```python
+from auto_sql import AutoSql
+
+tab_obj = AutoSql(file='file.csv',
+                        db_name='database',
+                        sep='\t',
+                        out_dir=".",
+                        buffer=.1)
+
+if __name__ == "__main__":
+    tab_obj.run()
+
+```
+
 Currently auto_sql only supports csv's with headers
 
 ## Dependencies
