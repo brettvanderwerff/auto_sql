@@ -32,6 +32,8 @@ if __name__ == "__main__":
 
 ```
 
+Currently auto_sql only supports csv's with headers
+
 ## Tuning
 
 The `buffer` parameter can be reduced from it's default `.3` value to avoid memory errors. Conversely the `buffer` parameter can be increased to gain speed at the increased risk of a memory error.
@@ -50,7 +52,6 @@ if __name__ == "__main__":
 
 ```
 
-Currently auto_sql only supports csv's with headers
 
 ## Dependencies
 
